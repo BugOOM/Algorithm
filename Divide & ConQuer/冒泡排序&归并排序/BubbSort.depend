@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1555416955 source:d:\coldblocks\bubbsort\main.cpp
+	<iostream>
+	<ctime>
+	<fstream>
+	<stdlib.h>
+
