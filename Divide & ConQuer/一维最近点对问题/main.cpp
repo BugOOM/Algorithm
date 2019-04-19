@@ -2,6 +2,19 @@
 #include<stdlib.h>
 using namespace std;
 #define maxint 1000
+class Pair
+{
+public:
+    int x1,x2;
+    int d;
+    Pair(){};
+    Pair(int x11,int x22,int d1)
+    {
+        x1=x11;
+        x2=x22;
+        d=d1;
+    }
+};
 template<class Type>
 void Swap(Type &a,Type &b)
 {
@@ -34,9 +47,16 @@ int Partition(Type A[],int p,int r)
     return p;
 }
 template<class Type>
+int RandomPartition(Type A[],int p,int r)
+{
+    int i=rand()%(r-p+1)+p;
+    Swap(A[p],A[i]);
+    return Partition(A,p,r);
+}
+template<class Type>
 int PartitionFour(Type A[],int p,int r,int k)
 {
-    int pos;
+    int pos=p;
     for(int i=p;i<=r;i++)
     {
         if(A[i]==k)
@@ -46,87 +66,92 @@ int PartitionFour(Type A[],int p,int r,int k)
         }
     }
     Swap(A[p],A[pos]);
-    return Partition(A,p,r);
+    return RandomPartition(A,p,r);
 }
+
+//template<class Type>
+//void quickSort(Type A[],int p,int r)
+//{
+//    if(p<r)
+//    {
+//        int i=RandomPartition(A,p,r);
+//        quickSort(A,p,i-1);
+//        quickSort(A,i+1,r);
+//    }
+//}
+//template<class Type>
+//Type select(Type A[],int p,int r,int k)
+//{
+//    if(r-p<75){
+//        quickSort(A,p,r);
+//        return A[p+k-1];
+//    }
+//    for(int i=0;i<=(r-p-4)/5;i++)
+//    {
+//        Type x=select(A,p,p+(r-p-4)/5,(r-p-4)/10);
+//        int temp=PartitionFour(A,p,r,x);
+//        int j=temp-p+1;
+//        if(k<=j)
+//            return select(A,p,temp,k);
+//        else
+//            return select(A,temp+1,r,k-j);
+//    }
+//}
 template<class Type>
-int RandomPartition(Type A[],int p,int r)
+Type Max(Type A[],int l,int r)
 {
-    int i=rand()%(r-p+1)+p;
-    Swap(A[p],A[i]);
-    return Partition(A,p,r);
-}
-template<class Type>
-void quickSort(Type A[],int p,int r)
-{
-    if(p<r)
-    {
-        int i=RandomPartition(A,p,r);
-        quickSort(A,p,i-1);
-        quickSort(A,i+1,r);
-    }
-}
-template<class Type>
-Type select(Type A[],int p,int r,int k)
-{
-    if(r-p<75){
-        quickSort(A,p,r);
-        return A[p+k-1];
-    }
-    for(int i=0;i<=(r-p-4)/5;i++)
-    {
-        Type x=select(A,p,p+(r-p-4)/5,(r-p-4)/10);
-        int temp=PartitionFour(A,p,r,x);
-        int j=temp-p+1;
-        if(k<=j)
-            return select(A,p,temp,k);
-        else
-            return select(A,temp+1,r,k-j);
-    }
-}
-template<class Type>
-Type Max(Type A[],int n)
-{
-    int Max=A[0];
-    for(int i=1;i<n;i++)
+    int Max=A[l];
+    for(int i=1+l;i<=r;i++)
         if(A[i]>Max)
             Max=A[i];
     return Max;
 }
 template<class Type>
-Type Min(Type A[],int n)
+Type Min(Type A[],int l,int r)
 {
-    int Min=A[0];
-    for(int i=1;i<n;i++)
+    int Min=A[l];
+    for(int i=1+l;i<=r;i++)
         if(A[i]<Min)
             Min=A[i];
     return Min;
 }
 template<class Type>
-Type Min(Type a,Type b,Type c)
+Pair Cpair(Type c[],int l,int r)
 {
-    if(a<b&&a<c)
-        return a;
-    if(b<a&&b<c)
-        return b;
-    if(c<a&&c<b)
-        return c;
-}
-template<class Type>
-Type Cpairs(Type A[],int n)
-{
-   Type dmin=maxint;
-   Type d;
-   if(n<2)
-   {
-       d=maxint;
-       return d;
-   }
-   Type d1=Cpairs(A,(n+1)/2);
-   Type d2=Cpairs(&A[(n+1)/2],n/2);
-   Type p=A[(n+1)/2-1];
-   Type q=A[(n+1)/2];
-   d=Min(d1,d2,q-p);
-   return d;
+    Pair d(0,0,9999);
+    if(r-l<1)
+        return d;
+    int m1=Max(c,l,r);
+    int m2=Min(c,l,r);
+    int m=(m1+m2)/2;
+    int j=PartitionFour(c,l,r,m);
+    Pair c1=Cpair(c,l,j);
+    Pair c2=Cpair(c,j+1,r);
+    int p=Max(c,l,j),q=Min(c,j+1,r);
+    if(c1.d<c2.d)
+    {
+        if(q-p<c1.d)
+        {
+           d.d=q-p;
+           d.x1=p;
+           d.x2=q;
+           return d;
+        }
+        else
+            return c1;
+    }
+    else
+    {
+        if(q-p<c2.d)
+            {
+                d.d=q-p;
+           d.x1=p;
+           d.x2=q;
+           return d;
+            }
+        else
+            return c2;
+    }
 }
 int main()
 {
@@ -142,10 +167,8 @@ int main()
 //    93,96,91,95,97,99,92,94};
 //    int k=select(a,0,79,56);
 //    cout<<k;
-        int a[]={2,6,18,9,12};
-        quickSort(a,0,4);
-        cout<<Cpairs(a,5);
-
-
-    return 0;
+        int a[]={2,6,18,9,13,8};
+        Pair p=Cpair(a,0,5);
+        cout<<p.d<<":"<<p.x1<<"-"<<p.x2;
+        return 0;
 }
